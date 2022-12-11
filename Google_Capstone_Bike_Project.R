@@ -113,5 +113,3 @@ table(alltrips$member_casual)
 ggplot(alltrips) +
   geom_bar(mapping = aes(x = rideable_type)) +
   facet_wrap(~member_casual)
-
-#small change
