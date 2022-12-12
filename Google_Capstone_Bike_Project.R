@@ -1,3 +1,5 @@
+#set working directory
+setwd("~/R Scripts/Google_Capstone_Project_CyclisticBikes")
 
 #prepare packages for use
 library(tidyverse)
@@ -15,6 +17,20 @@ jul2022<- read_csv('Project_Data/Cyclistic_tripdata_202207.csv')
 aug2022<- read_csv('Project_Data/Cyclistic_tripdata_202208.csv')
 sep2022<- read_csv('Project_Data/Cyclistic_tripdata_202209.csv')
 oct2022<- read_csv('Project_Data/Cyclistic_tripdata_202210.csv')
+
+#inspecting columns and checking for inconsistencies
+colname(nov2021)
+colname(dec2021)
+colname(jan2022)
+colname(feb2022)
+colname(mar2022)
+colname(apr2022)
+colname(may2022)
+colname(jun2022)
+colname(jul2022)
+colname(aug2022)
+colname(sep2022)
+colname(oct2022)
 
 #adding column to show the length of each ride
 nov2021$ride_length <- nov2021$ended_at-nov2021$started_at
@@ -108,10 +124,15 @@ str(alltrips)
 table(alltrips$member_casual)
 #Note: there are 1,049,628 more member observations than casual riders
 
+#inspecting rideable_type dispersion
+table(alltrips$rideable_type)
 
-#visualize the difference in member/casual use of each type of bike
-ggplot(alltrips) +
-  geom_bar(mapping = aes(x = rideable_type)) +
-  facet_wrap(~member_casual)
+#inspecting ride_length column
+mean(alltrips$ride_length) #average ride length
+median(alltrips$ride_length) #midpoint of all ride lengths
+max(alltrips$ride_length) #longest ride
+min(alltrips$ride_length) #shortest ride
+#Note: some rides appear to be in the negative
 
-#small change
+#duplicating alltrips dataframe but removing negative time rides
+alltripsV2 <- alltrips[!(alltrips$ride_length < 0)]
