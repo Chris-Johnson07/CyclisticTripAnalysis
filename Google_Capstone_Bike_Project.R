@@ -3,6 +3,7 @@ setwd("~/R Scripts/Google_Capstone_Project_CyclisticBikes")
 
 #prepare packages for use
 library(tidyverse)
+library(lubridate)
 
 #import last 12 months of Cyclistic rider data
 nov2021<- read_csv('Project_Data/Cyclistic_tripdata_202111.csv')
@@ -19,18 +20,18 @@ sep2022<- read_csv('Project_Data/Cyclistic_tripdata_202209.csv')
 oct2022<- read_csv('Project_Data/Cyclistic_tripdata_202210.csv')
 
 #inspecting columns and checking for inconsistencies
-colname(nov2021)
-colname(dec2021)
-colname(jan2022)
-colname(feb2022)
-colname(mar2022)
-colname(apr2022)
-colname(may2022)
-colname(jun2022)
-colname(jul2022)
-colname(aug2022)
-colname(sep2022)
-colname(oct2022)
+colnames(nov2021)
+colnames(dec2021)
+colnames(jan2022)
+colnames(feb2022)
+colnames(mar2022)
+colnames(apr2022)
+colnames(may2022)
+colnames(jun2022)
+colnames(jul2022)
+colnames(aug2022)
+colnames(sep2022)
+colnames(oct2022)
 
 #adding column to show the length of each ride
 nov2021$ride_length <- nov2021$ended_at-nov2021$started_at
@@ -127,6 +128,9 @@ table(alltrips$member_casual)
 #inspecting rideable_type dispersion
 table(alltrips$rideable_type)
 
+#now inspecting rideable_type dispersion by member/casual rider
+table(alltrips$member_casual,alltrips$rideable_type)
+
 #inspecting ride_length column
 mean(alltrips$ride_length) #average ride length
 median(alltrips$ride_length) #midpoint of all ride lengths
@@ -135,4 +139,108 @@ min(alltrips$ride_length) #shortest ride
 #Note: some rides appear to be in the negative
 
 #duplicating alltrips dataframe but removing negative time rides
-alltripsV2 <- alltrips[!(alltrips$ride_length < 0)]
+alltripsV2 <- alltrips[!(alltrips$ride_length < 0),]
+
+#inspecting ride_length column from new dataframe
+mean(alltripsV2$ride_length) #average ride length
+median(alltripsV2$ride_length) #midpoint of all ride lengths
+max(alltripsV2$ride_length) #longest ride
+min(alltripsV2$ride_length) #shortest ride
+
+#now inspecting characteristics by member/casual rider
+aggregate(alltripsV2$ride_length,list(alltripsV2$member_casual), FUN=mean)
+aggregate(alltripsV2$ride_length,list(alltripsV2$member_casual), FUN=median)
+aggregate(alltripsV2$ride_length,list(alltripsV2$member_casual), FUN=max)
+aggregate(alltripsV2$ride_length,list(alltripsV2$member_casual), FUN=min)
+
+#inspecting number of rides by day of week
+table(alltripsV2$day_of_week)
+
+#inspecting number of rides by day of week
+table(alltripsV2$member_casual, alltripsV2$day_of_week)
+
+#average ride by member/casual rider by day of the week
+aggregate(alltripsV2$ride_length ~ alltripsV2$member_casual + 
+            alltripsV2$day_of_week, FUN = mean)
+
+#order day of week column
+alltripsV2$day_of_week <- ordered(alltripsV2$day_of_week, levels = 
+                                    c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+
+#average ride by member/casual rider by day of the week
+aggregate(alltripsV2$ride_length ~ alltripsV2$member_casual + 
+            alltripsV2$day_of_week, FUN = mean)
+
+#number of rides and average ride length grouped by member/casual rider and day of the week
+alltripsV2 %>% mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
+  arrange(member_casual, weekday)
+
+#visualization of number of rides by member/casual riders
+alltripsV2 %>% mutate(weekday = alltripsV2$day_of_week) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
+  arrange(member_casual, weekday) %>% 
+  ggplot(aes(x = weekday, y = number_of_rides, fill = member_casual)) +
+  geom_col(position = 'dodge')
+ggsave('number_of_rides.png')
+
+#visualization of average ride length by member/casual riders
+alltripsV2 %>% mutate(weekday = alltripsV2$day_of_week) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
+  arrange(member_casual, weekday) %>% 
+  ggplot(aes(x = weekday, y = average_duration, fill = member_casual)) + 
+  geom_col(position = 'dodge')
+ggsave("average_duration.png")
+
+#visualization of the type of bike used by member/casual riders
+alltripsV2 %>% mutate(bike_type = alltripsV2$rideable_type) %>% 
+  group_by(member_casual, bike_type) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual, bike_type) %>% 
+  ggplot(aes(x = member_casual, y = number_of_rides, fill = bike_type)) +
+  geom_col(position = 'dodge')
+ggsave("ride_type.png")
+
+#now let's inspect the hours of the day riders start their trips at
+alltripsV2$start_hour <- as.POSIXct(alltripsV2$started_at)
+str(alltripsV2)
+
+alltripsV2$start_hour <- format(alltripsV2$start_hour, format = '%H')
+str(alltripsV2)
+
+#let's visualize the number of rides started for each hour of the day
+alltripsV2 %>% group_by(member_casual, start_hour) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual, start_hour) %>% 
+  ggplot(aes(x = member_casual, y = number_of_rides, fill = start_hour)) +
+  geom_col(position = 'dodge')
+ggsave("rides_by_the_hour")
+
+#let's visualize the number of rides started for each hour of the day, for each day of the week, by member/casual riders
+alltripsV2 %>% group_by(member_casual, day_of_week, start_hour) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(day_of_week, start_hour) %>% 
+  ggplot(aes(x = day_of_week, y = number_of_rides, fill = start_hour)) +
+  geom_col(position = 'dodge') +
+  facet_wrap(~member_casual)
+ggsave("rides_by_the_hour_by_membership_type")
+
+#let's look at each plot separate
+alltripsV2[alltripsV2$member_casual == 'member',] %>% 
+  group_by(day_of_week, start_hour) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(day_of_week, start_hour) %>% 
+  ggplot(aes(x = day_of_week, y = number_of_rides, fill = start_hour)) +
+  geom_col(position = 'dodge')
+ggsave("member_riders_start_hours")
+
+alltripsV2[alltripsV2$member_casual == 'casual',] %>% 
+  group_by(day_of_week, start_hour) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(day_of_week, start_hour) %>% 
+  ggplot(aes(x = day_of_week, y = number_of_rides, fill = start_hour)) +
+  geom_col(position = 'dodge')
+ggsave("casual_riders_start_hours")
