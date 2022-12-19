@@ -4,6 +4,7 @@ setwd("~/R Scripts/Google_Capstone_Project_CyclisticBikes")
 #prepare packages for use
 library(tidyverse)
 library(lubridate)
+library(scales)
 
 #import last 12 months of Cyclistic rider data
 nov2021<- read_csv('Project_Data/Cyclistic_tripdata_202111.csv')
@@ -103,20 +104,19 @@ aug2022 <- subset(aug2022, select = -c(start_lat, start_lng, end_lat, end_lng))
 sep2022 <- subset(sep2022, select = -c(start_lat, start_lng, end_lat, end_lng))
 oct2022 <- subset(oct2022, select = -c(start_lat, start_lng, end_lat, end_lng))
 
-#combining months into quarters for seasonal comparisons
-q1 <- rbind(nov2021,dec2021,jan2022)
-q2 <- rbind(feb2022,mar2022,apr2022)
-q3 <- rbind(may2022,jun2022,jul2022)
-q4 <- rbind(aug2022,sep2022,oct2022)
-
-#inspecting quarters for irregularities or inconsistencies
-str(q1)
-str(q2)
-str(q3)
-str(q4)
-
 #combining quarters into a 12-month data frame to analyze data as a whole
-alltrips <- rbind(q1,q2,q3,q4)
+alltrips <- rbind(nov2021,
+                  dec2021,
+                  jan2022,
+                  feb2022,
+                  mar2022,
+                  apr2022,
+                  may2022,
+                  jun2022,
+                  jul2022,
+                  aug2022,
+                  sep2022,
+                  oct2022)
 
 #inspecting alltrips data frame for irregularities or inconsistencies
 str(alltrips)
@@ -138,7 +138,7 @@ max(alltrips$ride_length) #longest ride
 min(alltrips$ride_length) #shortest ride
 #Note: some rides appear to be in the negative
 
-#duplicating alltrips dataframe but removing negative time rides
+#duplicating alltrips dataframe but removing ride lengths less than 0 secs
 alltripsV2 <- alltrips[!(alltrips$ride_length < 0),]
 
 #inspecting ride_length column from new dataframe
@@ -204,6 +204,7 @@ alltripsV2 %>% mutate(bike_type = alltripsV2$rideable_type) %>%
   geom_col(position = 'dodge')
 ggsave("ride_type.png")
 
+
 #now let's inspect the hours of the day riders start their trips at
 alltripsV2$start_hour <- as.POSIXct(alltripsV2$started_at)
 str(alltripsV2)
@@ -211,36 +212,30 @@ str(alltripsV2)
 alltripsV2$start_hour <- format(alltripsV2$start_hour, format = '%H')
 str(alltripsV2)
 
+table(alltripsV2$start_hour)
+
 #let's visualize the number of rides started for each hour of the day
 alltripsV2 %>% group_by(member_casual, start_hour) %>% 
   summarise(number_of_rides = n()) %>% 
   arrange(member_casual, start_hour) %>% 
-  ggplot(aes(x = member_casual, y = number_of_rides, fill = start_hour)) +
-  geom_col(position = 'dodge')
+  ggplot(aes(x = start_hour, y = number_of_rides, group = member_casual)) +
+  geom_line(aes(color = member_casual)) +
+  geom_point(aes(color = member_casual))
 ggsave("rides_by_the_hour")
 
-#let's visualize the number of rides started for each hour of the day, for each day of the week, by member/casual riders
-alltripsV2 %>% group_by(member_casual, day_of_week, start_hour) %>% 
-  summarise(number_of_rides = n()) %>% 
-  arrange(day_of_week, start_hour) %>% 
-  ggplot(aes(x = day_of_week, y = number_of_rides, fill = start_hour)) +
-  geom_col(position = 'dodge') +
-  facet_wrap(~member_casual)
-ggsave("rides_by_the_hour_by_membership_type")
+#let's visualize number of rides for each season by member/casual riders
+alltripsV2$month <- as.POSIXct(alltripsV2$started_at)
+str(alltripsV2)
 
-#let's look at each plot separate
-alltripsV2[alltripsV2$member_casual == 'member',] %>% 
-  group_by(day_of_week, start_hour) %>% 
-  summarise(number_of_rides = n()) %>% 
-  arrange(day_of_week, start_hour) %>% 
-  ggplot(aes(x = day_of_week, y = number_of_rides, fill = start_hour)) +
-  geom_col(position = 'dodge')
-ggsave("member_riders_start_hours")
+alltripsV2$month <- format(alltripsV2$month, format = '%b')
+str(alltripsV2)
 
-alltripsV2[alltripsV2$member_casual == 'casual',] %>% 
-  group_by(day_of_week, start_hour) %>% 
+alltripsV2$month <- ordered(alltripsV2$month, levels = 
+                              c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+
+alltripsV2 %>% group_by(member_casual,month) %>% 
   summarise(number_of_rides = n()) %>% 
-  arrange(day_of_week, start_hour) %>% 
-  ggplot(aes(x = day_of_week, y = number_of_rides, fill = start_hour)) +
-  geom_col(position = 'dodge')
-ggsave("casual_riders_start_hours")
+  arrange(member_casual,month) %>% 
+  ggplot(aes(x = month, y = number_of_rides, group = member_casual)) +
+  geom_line(aes(color = member_casual)) +
+  geom_point(aes(color = member_casual))
