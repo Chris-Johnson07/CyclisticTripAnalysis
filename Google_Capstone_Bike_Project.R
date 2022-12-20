@@ -4,7 +4,6 @@ setwd("~/R Scripts/Google_Capstone_Project_CyclisticBikes")
 #prepare packages for use
 library(tidyverse)
 library(lubridate)
-library(scales)
 
 #import last 12 months of Cyclistic rider data
 nov2021<- read_csv('Project_Data/Cyclistic_tripdata_202111.csv')
@@ -177,21 +176,21 @@ alltripsV2 %>% mutate(weekday = wday(started_at, label = TRUE)) %>%
   summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
   arrange(member_casual, weekday)
 
-#visualization of number of rides by member/casual riders
+#visualization of number of rides by member/casual riders and by day of the week
 alltripsV2 %>% mutate(weekday = alltripsV2$day_of_week) %>% 
   group_by(member_casual, weekday) %>% 
-  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
+  summarise(number_of_rides = n()) %>% 
   arrange(member_casual, weekday) %>% 
   ggplot(aes(x = weekday, y = number_of_rides, fill = member_casual)) +
   geom_col(position = 'dodge')
 ggsave('number_of_rides.png')
 
-#visualization of average ride length by member/casual riders
+#visualization of average ride length by member/casual riders and by day of the week
 alltripsV2 %>% mutate(weekday = alltripsV2$day_of_week) %>% 
   group_by(member_casual, weekday) %>% 
-  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
+  summarise(average_duration_in_minutes = mean(ride_length)/60) %>% 
   arrange(member_casual, weekday) %>% 
-  ggplot(aes(x = weekday, y = average_duration, fill = member_casual)) + 
+  ggplot(aes(x = weekday, y = average_duration_in_minutes, fill = member_casual)) + 
   geom_col(position = 'dodge')
 ggsave("average_duration.png")
 
@@ -203,7 +202,6 @@ alltripsV2 %>% mutate(bike_type = alltripsV2$rideable_type) %>%
   ggplot(aes(x = member_casual, y = number_of_rides, fill = bike_type)) +
   geom_col(position = 'dodge')
 ggsave("ride_type.png")
-
 
 #now let's inspect the hours of the day riders start their trips at
 alltripsV2$start_hour <- as.POSIXct(alltripsV2$started_at)
@@ -223,7 +221,7 @@ alltripsV2 %>% group_by(member_casual, start_hour) %>%
   geom_point(aes(color = member_casual))
 ggsave("rides_by_the_hour")
 
-#let's visualize number of rides for each season by member/casual riders
+#let's visualize number of rides for each month by member/casual riders
 alltripsV2$month <- as.POSIXct(alltripsV2$started_at)
 str(alltripsV2)
 
