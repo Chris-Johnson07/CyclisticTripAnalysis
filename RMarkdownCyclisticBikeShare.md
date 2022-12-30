@@ -565,6 +565,7 @@ alltripsV2 %>% mutate(weekday = alltripsV2$day_of_week) %>%
 ```
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![unnamed-chunk-18-1](https://user-images.githubusercontent.com/52151771/210039884-7517bca4-a78f-4246-bd03-ed4790c322d3.png)
 
 ``` r
 #visualization of average ride length by member/casual riders and by day of the week
@@ -582,6 +583,7 @@ alltripsV2 %>% mutate(weekday = alltripsV2$day_of_week) %>%
     ## Defaulting to continuous.
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![unnamed-chunk-19-1](https://user-images.githubusercontent.com/52151771/210039880-44b15ed8-56ce-417c-b107-838711656a42.png)
 
 ``` r
 #visualization of the type of bike used by member/casual riders
@@ -598,6 +600,7 @@ alltripsV2[alltripsV2$member_casual == 'member',] %>% group_by(rideable_type) %>
 ```
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![unnamed-chunk-20-1](https://user-images.githubusercontent.com/52151771/210039863-3cf25bbc-0113-44d2-99f4-9b8e03888fd5.png)
 
 ``` r
 alltripsV2[alltripsV2$member_casual == 'casual',] %>% group_by(rideable_type) %>% 
@@ -613,6 +616,7 @@ alltripsV2[alltripsV2$member_casual == 'casual',] %>% group_by(rideable_type) %>
 ```
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+![unnamed-chunk-20-2](https://user-images.githubusercontent.com/52151771/210039856-40fb33cf-a2c0-4a34-b1d3-b58b0014db96.png)
 
 ``` r
 #now let's inspect the hours of the day riders start their trips at
@@ -681,6 +685,7 @@ alltripsV2 %>% group_by(member_casual, start_hour) %>%
     ## `.groups` argument.
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![unnamed-chunk-22-1](https://user-images.githubusercontent.com/52151771/210039839-348cc603-8e6f-46db-838f-2ee9023bb170.png)
 
 ``` r
 #let's visualize number of rides for each month by member/casual riders
@@ -741,6 +746,7 @@ alltripsV2 %>% group_by(member_casual,month) %>%
     ## `.groups` argument.
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![unnamed-chunk-23-1](https://user-images.githubusercontent.com/52151771/210039824-5aa0ac03-03aa-4426-8cef-8037efd92f88.png)
 
 ## Share
 
@@ -767,8 +773,10 @@ members and casual riders that can help us understand our customers as
 well as help us specifically target casual riders.
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![unnamed-chunk-24-1](https://user-images.githubusercontent.com/52151771/210039807-2b4da315-c6bf-41f8-a7d2-af38c9db6693.png)
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![unnamed-chunk-25-1](https://user-images.githubusercontent.com/52151771/210039800-955e3249-5154-460b-a0d2-5dd47a1f0736.png)
 
 In these two histograms, we see that:
 
@@ -781,11 +789,13 @@ In these two histograms, we see that:
 - casual riders prefer longer rides during the weekends.
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![unnamed-chunk-26-1](https://user-images.githubusercontent.com/52151771/210039788-77ff082d-9c58-4c72-a0ea-60b9da53b9a1.png)
 
 In this line graph we see that, like members, number of rides for casual
 riders peaks at 5pm.
 
 ![](RMarkdownCyclisticBikeShare_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![unnamed-chunk-27-1](https://user-images.githubusercontent.com/52151771/210037603-721edf96-0ee1-4c45-9923-d19160f97c0b.png)
 
 In this line graph we see that number of rides for members steadily
 increases during summer months and remains high until after October.
